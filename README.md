@@ -1,121 +1,171 @@
 # BorrowHub — Peer-to-Peer Equipment Sharing Platform with AI Planner
 
 > **"Borrow More. Buy Less. Share Better."**  
-> Built with modern **MERN stack** (MongoDB, Express, React, Node.js) and integrated with **BorrowHub AI Assistant & Smart Equipment Planner**.
+> Built with the modern **MERN stack** (MongoDB, Express 4, React 19, Node.js 22) and integrated with **Google Gemini 2.5 Generative AI** and **Cloudinary Persistent Media Storage**.
 
 ---
 
 ## 🌟 Overview & Architecture
 
-BorrowHub brings community equipment sharing to campuses and neighborhoods. Borrow high-end cinema cameras, heavy-duty power tools, alpine camping setups, and specialty appliances from verified neighbors, fully insured by **BorrowGuard™ $15,000 Underwriting**.
+BorrowHub brings peer-to-peer equipment sharing to neighborhoods and campuses. Borrow high-end cinema cameras, power tools, camping setups, and lawn gear from verified neighbors, with smart dynamic locker pickup codes, real-time messaging, and AI project planning.
 
 ### Project Structure:
-```
-Borrowhub/
-├── client/                                    # React + Vite + Tailwind CSS Frontend
+```text
+BorrowHub/
+├── client/                                    # React 19 + Vite 8 + Tailwind CSS 4 Frontend
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx                     # Global navigation with search, AI pill, verified avatar
-│   │   │   ├── Footer.jsx                     # Brand footer, trust signals, newsletter, guidelines
-│   │   │   ├── EquipmentCard.jsx              # Reusable card with distance, daily rate, wishlist
-│   │   │   └── ListItemModal.jsx              # Modal to list gear with AI Smart Price Suggester
-│   │   ├── data/
-│   │   │   ├── equipmentData.js               # Equipment inventory, categories & community nodes
-│   │   │   ├── mockBookings.js                # Active bookings with locker PINs & checklist
-│   │   │   └── aiKnowledge.js                 # AI project scenario presets & technical reasoning
-│   │   ├── pages/
-│   │   │   ├── HomePage.jsx                   # Hero, bento collage, discovery grid, how it works
-│   │   │   ├── ExplorePage.jsx                # Filter sidebar (price, distance, instant book) + Map view
-│   │   │   ├── EquipmentDetailsPage.jsx       # Gallery, specs, lender card, sticky date & price widget
-│   │   │   ├── BookingFlowPage.jsx            # Interactive 4-stage stepper & AI condition photo review
-│   │   │   ├── AIAssistantPage.jsx            # Conversational reasoning + live gear bundle checklist
-│   │   │   ├── BorrowerDashboardPage.jsx      # Active rentals, locker PINs, savings metrics
-│   │   │   ├── LenderDashboardPage.jsx        # Earnings, pending requests approval, inventory toggles
-│   │   │   └── CommunityMessagingPage.jsx     # Live chat + Admin Trust & Verification Console
-│   │   ├── App.jsx                            # React Router multi-page architecture
-│   │   ├── main.jsx                           # Application entry point
-│   │   └── index.css                          # Custom color tokens from DESIGN.md
+│   │   ├── components/                        # Navbar, Footer, EquipmentCard, Modals
+│   │   ├── context/                           # AuthContext (JWT, session persistence, role management)
+│   │   ├── pages/                             # 8 responsive application screens
+│   │   ├── services/                          # REST API client with auth token interceptors
+│   │   ├── App.jsx                            # React Router SPA routing & error boundaries
+│   │   └── main.jsx                           # Application entry point
+│   ├── vercel.json                            # Client-level SPA rewrite rules
 │   └── package.json
 │
-├── server/                                    # Node.js + Express + MongoDB + AI Backend
-│   ├── models/
-│   │   ├── Equipment.js                       # Mongoose model for gear
-│   │   └── Booking.js                         # Mongoose model for bookings
-│   ├── routes/
-│   │   ├── equipmentRoutes.js                 # CRUD for equipment
-│   │   ├── bookingRoutes.js                   # Booking flow & requests API
-│   │   └── aiRoutes.js                        # AI Project Planner & Chat API
-│   ├── server.js                              # Express app with CORS & MongoDB connection
+├── server/                                    # Node.js + Express + MongoDB Atlas Backend
+│   ├── middleware/                            # JWT authentication & rate limiter protection
+│   ├── models/                                # User, Equipment, Booking, Message, Review schemas
+│   ├── routes/                                # Auth, Equipment, Booking, Messages, AI, Upload
+│   ├── tests/                                 # Native Node.js test suite (10/10 automated suites)
+│   ├── utils/                                 # URL validation & security helpers
+│   ├── seed.js                                # Opt-in test seed script (never runs on startup)
+│   ├── server.js                              # Express app, Helmet, CORS, graceful shutdown
 │   ├── package.json
 │   └── .env.example
 │
-└── stitch_borrowhub_equipment_sharing_platform/ # Original UI export files & DESIGN.md
+├── render.yaml                                # Render Backend Blueprint deployment config
+├── vercel.json                                # Root Vercel SPA configuration
+├── package.json                               # Workspace scripts (install, build, test, lint)
+└── .gitignore                                 # Strict secret, node_modules & upload exclusions
 ```
 
 ---
 
-## 🚀 All 8 Screens Implemented
+## 🚀 Key Features
 
-1. **Homepage & Discovery (`/`)**
-   - High-impact hero with bento showcase cards
-   - Live category switcher chips (Photography, Power Tools, Camping, Lawn & Garden, etc.)
-   - Real-time availability equipment cards with distance indicators
-   - AI Planner promo banner and 4-step "How It Works" workflow
-
-2. **Explore Equipment Marketplace (`/explore`)**
-   - Left filter sidebar: category, price slider ($15 - $100+), radius slider, instant book toggle
-   - Grid View & interactive Map View toggle with price pins
-   - Real-time sorting: Price low/high, rating, distance, recommended
-
-3. **Equipment Details & Sticky Booking Widget (`/equipment/:id`)**
-   - Multi-photo gallery with active thumbnail strip
-   - Verified lender profile with ratings, response time, and trust tier
-   - Full technical specs table & included accessories checklist
-   - Interactive booking calculator: Pickup/return date picker, smart locker vs doorstep drop, BorrowGuard™ damage protection waiver, and instant checkout
-
-4. **Booking Flow & Status Manager (`/booking/:id`)**
-   - 4-stage interactive lifecycle: Request Submitted ➔ Locker Handover ➔ Active In-Use ➔ AI Return Scan
-   - Encrypted Smart Locker PIN code display
-   - Interactive condition photo proof upload simulator with AI comparison
-
-5. **BorrowHub AI Assistant & Smart Planner (`/ai-planner`)**
-   - Conversational reasoning assistant with technical project analysis
-   - Quick prompt presets (Indie Dusk Short Film, Cedar Garden Bed, Yosemite Alpine Overland)
-   - Dynamic Equipment Bundle Checklist on the right panel with live total rate and 15% bundle discount
-   - 1-Click "Borrow Entire Bundle"
-
-6. **Borrower Dashboard (`/borrower-dashboard`)**
-   - 4 key metrics: Active rentals, total saved vs retail buying, 5.0 trust score, $15k guarantee
-   - Active booking cards with locker PINs and return deadlines
-   - Upcoming and past rental history tabs
-
-7. **Lender Studio & Inventory Manager (`/lender-dashboard`)**
-   - Monthly earnings tracker ($840/month) and node utilization rate
-   - Incoming borrow requests with interactive "Approve & Release PIN" and "Decline" buttons
-   - Equipment inventory management with live/paused status toggles
-   - "List New Equipment" modal with AI price recommendation
-
-8. **Community Messaging & Admin Trust Hub (`/messages`)**
-   - Multi-chat list with verified neighbor badges
-   - Real-time chat stream with embedded locker passcodes and active rental cards
-   - Admin verification audit console with ID OCR matching and BorrowGuard dispute handling
+1. **Authentication & Authorization**:
+   - Secure registration and login using `bcryptjs` password hashing and signed JWT tokens.
+   - Dedicated Borrower and Lender profiles with admin role protection.
+   - Persistent user sessions via `localStorage` with dynamic navbar controls.
+2. **Data-Driven Equipment Marketplace**:
+   - Zero hardcoded inventory — all listings, prices, categories, and photos originate in MongoDB.
+   - Dual-mode image uploads: Cloudinary CDN persistent storage in production with local disk fallback for offline dev.
+   - Real-time search, category filters, price sliders, and map view.
+3. **Booking Flow & Dynamic Locker PIN Security**:
+   - Conflict-free date booking validation.
+   - Smart Locker 6-digit dynamic PIN generation — strictly hidden until lender approval.
+   - Real-time status transitions: `Pending` ➔ `Approved` ➔ `In-Use` ➔ `Returned`.
+4. **Google Gemini 2.5 AI Equipment Planner**:
+   - Grounded conversational assistant that inspects actual MongoDB inventory.
+   - Generates project bundles and rental recommendations without inventory hallucination.
+   - Graceful fallback with user notice if AI provider is unavailable.
+5. **Private Neighbor Messaging**:
+   - Direct communication between borrowers and lenders.
+   - Strict third-party privacy protection and MongoDB message persistence.
+6. **Data Integrity & Security Defense**:
+   - Helmet HTTP security headers.
+   - Rate limiting on API endpoints to prevent brute force and abuse.
+   - CORS origin whitelisting.
 
 ---
 
-## 🛠️ How to Run Locally
+## 🛠️ Local Development Quickstart
 
-### Frontend:
-```bash
-cd client
-npm install
-npm run dev
-```
-Open **[http://localhost:5173/](http://localhost:5173/)** in your browser.
+### Prerequisites
+- Node.js >= 18.0.0
+- MongoDB (Local instance or MongoDB Atlas free tier)
 
-### Backend:
+### 1. Clone & Install Dependencies
 ```bash
-cd server
-npm install
-npm run dev # or npm start
+git clone https://github.com/Vishal4256/BorrowHub.git
+cd BorrowHub
+npm run install:all
 ```
-Server runs on **http://localhost:5000** with endpoints for `/api/equipment`, `/api/bookings`, and `/api/ai/plan`.
+
+### 2. Configure Environment Variables
+Create `server/.env` (see `server/.env.example`):
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/borrowhub
+JWT_SECRET=your_dev_jwt_secret_key_minimum_32_characters
+ADMIN_SECRET_KEY=your_admin_secret_key
+CLIENT_URL=http://localhost:5173
+# Optional: GEMINI_API_KEY, CLOUDINARY credentials
+```
+
+Create `client/.env` (see `client/.env.example`):
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+### 3. Start Development Servers
+From the repository root:
+```bash
+# Terminal 1: Start Backend (http://localhost:5000)
+npm run dev:server
+
+# Terminal 2: Start Frontend (http://localhost:5173)
+npm run dev:client
+```
+
+---
+
+## 🧪 Testing & Code Quality
+
+BorrowHub includes automated integration tests using the native Node.js test runner:
+
+```bash
+# Run backend test suite (10 test suites covering Auth, CRUD, Bookings, AI, Security)
+npm run test:server
+
+# Run frontend OxLint code check
+npm run lint:client
+
+# Test production frontend bundle build
+npm run build:client
+```
+
+---
+
+## 🌐 Production Deployment
+
+### 1. Database — MongoDB Atlas
+1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Whitelist `0.0.0.0/0` in **Network Access** to allow cloud hosts to connect.
+3. Create a database user with `readWrite` permissions.
+4. Copy your SRV connection string: `mongodb+srv://<user>:<password>@cluster.mongodb.net/?retryWrites=true&w=majority`.
+
+### 2. Backend — Render
+1. Connect your repository to [Render](https://render.com/).
+2. Create a new **Web Service** with:
+   - **Root Directory**: `server`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Health Check Path**: `/api/health`
+3. Configure Environment Variables:
+   - `NODE_ENV`: `production`
+   - `MONGO_URI`: *Your Atlas connection string*
+   - `MONGO_DB_NAME`: `borrowhub`
+   - `JWT_SECRET`: *Random 64-character string*
+   - `ADMIN_SECRET_KEY`: *Admin creation secret*
+   - `CLIENT_URL`: `https://<your-vercel-domain>.vercel.app`
+   - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+   - `GEMINI_API_KEY` (with `GEMINI_MODEL=gemini-2.5-flash`)
+
+### 3. Frontend — Vercel
+1. Import your repository into [Vercel](https://vercel.com/).
+2. Configure Project Settings:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `.` (uses root `vercel.json` and builds `client/dist`) or `client`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist` (if using `client`) or `client/dist` (if using root)
+3. Add Environment Variable:
+   - `VITE_API_URL`: `https://<your-render-backend-url>.onrender.com/api`
+4. Deploy!
+
+---
+
+## 📄 License
+ISC License. Built for open, sustainable community equipment sharing.
