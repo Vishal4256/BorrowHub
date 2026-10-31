@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
   const { login, register } = useAuth();
   const [mode, setMode] = useState(initialMode); // 'login' | 'register'
+
+  // Reset form and mode whenever modal opens or initialMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setError(null);
+      setName('');
+      setEmail('');
+      setPassword('');
+      setLocation('');
+    }
+  }, [isOpen, initialMode]);
 
   // Form states
   const [name, setName] = useState('');

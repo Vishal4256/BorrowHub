@@ -72,6 +72,14 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-key']
 };
 
+// Handle Chrome Private Network Access preflight
+app.use((req, res, next) => {
+  if (req.headers['access-control-request-private-network']) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
+  next();
+});
+
 app.use(cors(corsOptions));
 
 // Body parsing with safe payload limits
