@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+*.env
+server/.env
+client/.env
+client/.env.local
+client/.env.production.local
+client/.env.development.local
+
+# Build outputs
+dist/
+dist-ssr/
+client/dist/
+
+# Uploaded User Files (Server disk storage)
+uploads/
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+

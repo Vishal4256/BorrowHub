@@ -1,0 +1,19 @@
+{
+  "name": "borrowhub",
+  "version": "1.0.0",
+  "description": "BorrowHub - Peer-to-Peer Community Equipment Sharing & AI Planner Platform",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server install",
+    "start:server": "npm --prefix server start",
+    "test:server": "npm --prefix server test",
+    "lint:client": "npm --prefix client run lint"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
