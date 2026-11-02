@@ -14,7 +14,7 @@ router.post('/register', authLimiter, async (req, res) => {
     const { name, email, password, role, location, bio, avatar } = req.body;
 
     if (!name || typeof name !== 'string' || !name.trim()) {
-      return res.status(400).json({ error: 'A valid full name is required.' });
+      return res.status(400).json({ error: 'Please complete all required fields.' });
     }
 
     if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
@@ -31,7 +31,7 @@ router.post('/register', authLimiter, async (req, res) => {
 
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
     if (existingUser) {
-      return res.status(400).json({ error: 'A user with this email address already exists.' });
+      return res.status(400).json({ error: 'This email is already registered. Please sign in.' });
     }
 
     // Role assignment security:
@@ -78,7 +78,10 @@ router.post('/register', authLimiter, async (req, res) => {
       token
     });
   } catch (err) {
-    res.status(500).json({ error: 'Registration failed', details: err.message });
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This email is already registered. Please sign in.' });
+    }
+    res.status(500).json({ error: 'Something went wrong. Please try again later.', details: err.message });
   }
 });
 
@@ -88,17 +91,17 @@ router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Please provide both email and password.' });
+      return res.status(400).json({ error: 'Please complete all required fields.' });
     }
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'Incorrect email or password.' });
     }
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'Incorrect email or password.' });
     }
 
     const token = generateToken(user._id);
@@ -119,7 +122,7 @@ router.post('/login', authLimiter, async (req, res) => {
       token
     });
   } catch (err) {
-    res.status(500).json({ error: 'Login failed', details: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again later.', details: err.message });
   }
 });
 
