@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api, resolveImageUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemModal }) {
+export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemModal, refreshTrigger }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -38,7 +38,7 @@ export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemMo
     };
 
     fetchDetails();
-  }, [id]);
+  }, [id, refreshTrigger]);
 
   if (loading) {
     return (

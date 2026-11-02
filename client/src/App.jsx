@@ -83,6 +83,7 @@ export default function App() {
                   <EquipmentDetailsPage
                     onOpenAuthModal={handleOpenAuthModal}
                     onOpenListItemModal={handleOpenListItemModal}
+                    refreshTrigger={refreshTrigger}
                   />
                 }
               />
