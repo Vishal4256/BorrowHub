@@ -13,6 +13,7 @@ export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemMo
   const [error, setError] = useState(null);
 
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+  const [todayStr] = useState(() => new Date().toISOString().split('T')[0]);
   const [pickupDate, setPickupDate] = useState(() => new Date(Date.now() + 86400000).toISOString().split('T')[0]);
   const [returnDate, setReturnDate] = useState(() => new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0]);
   const [handoverOption, setHandoverOption] = useState('locker');
@@ -79,6 +80,16 @@ export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemMo
 
     if (!user) {
       if (onOpenAuthModal) onOpenAuthModal('login');
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (pickupDate < todayStr) {
+      setBookingConflictError('Pickup date cannot be in the past.');
+      return;
+    }
+    if (returnDate < pickupDate) {
+      setBookingConflictError('Return date must be on or after pickup date.');
       return;
     }
 
@@ -363,6 +374,7 @@ export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemMo
                 <input
                   type="date"
                   value={pickupDate}
+                  min={todayStr}
                   onChange={(e) => setPickupDate(e.target.value)}
                   className="w-full bg-[#FAFBF8] border border-[#c0c8c4] rounded-xl px-2.5 py-2 text-xs font-semibold text-[#151e18] focus:outline-none focus:border-[#006c48]"
                   required
@@ -374,6 +386,7 @@ export default function EquipmentDetailsPage({ onOpenAuthModal, onOpenListItemMo
                 <input
                   type="date"
                   value={returnDate}
+                  min={pickupDate || todayStr}
                   onChange={(e) => setReturnDate(e.target.value)}
                   className="w-full bg-[#FAFBF8] border border-[#c0c8c4] rounded-xl px-2.5 py-2 text-xs font-semibold text-[#151e18] focus:outline-none focus:border-[#006c48]"
                   required

@@ -100,6 +100,10 @@ export default function App() {
                 }
               />
               <Route
+                path="/ai-assistant"
+                element={<Navigate to="/ai-planner" replace />}
+              />
+              <Route
                 path="/borrower-dashboard"
                 element={<BorrowerDashboardPage onOpenAuthModal={handleOpenAuthModal} />}
               />

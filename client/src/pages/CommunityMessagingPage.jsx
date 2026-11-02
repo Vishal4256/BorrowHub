@@ -126,7 +126,7 @@ export default function CommunityMessagingPage({ onOpenAuthModal }) {
         <div className="grid grid-cols-1 md:grid-cols-12 bg-white rounded-3xl border border-[#dbe5dc] shadow-xs overflow-hidden h-[620px]">
           
           {/* Left Conversations Sidebar (4 cols) */}
-          <aside className="md:col-span-4 border-r border-[#e1ebe1] flex flex-col h-full bg-[#FAFBF8]">
+          <aside className={`md:col-span-4 border-r border-[#e1ebe1] flex flex-col h-full bg-[#FAFBF8] ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
             <div className="p-4 border-b border-[#e1ebe1]">
               <span className="text-xs font-bold text-[#151e18] uppercase tracking-wider">
                 Community Members ({conversations.length})
@@ -179,13 +179,20 @@ export default function CommunityMessagingPage({ onOpenAuthModal }) {
           </aside>
 
           {/* Right Message Chat Window (8 cols) */}
-          <main className="md:col-span-8 flex flex-col h-full">
+          <main className={`md:col-span-8 flex flex-col h-full ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
             {selectedUser ? (
               <>
                 {/* Active Chat Header */}
                 <div className="p-4 border-b border-[#e1ebe1] bg-white flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#123c32] text-white flex items-center justify-center font-bold text-xs overflow-hidden border border-[#c0c8c4]">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      onClick={() => setSelectedUser(null)}
+                      className="md:hidden p-1.5 -ml-1 rounded-full hover:bg-[#e6f1e7] text-[#006c48] flex items-center justify-center transition-colors"
+                      title="Back to Contacts"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                    </button>
+                    <div className="w-9 h-9 rounded-full bg-[#123c32] text-white flex items-center justify-center font-bold text-xs overflow-hidden border border-[#c0c8c4] flex-shrink-0">
                       {selectedUser.avatar ? (
                         <img src={resolveImageUrl(selectedUser.avatar)} alt={selectedUser.name} className="w-full h-full object-cover" />
                       ) : (
@@ -193,12 +200,12 @@ export default function CommunityMessagingPage({ onOpenAuthModal }) {
                       )}
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm text-[#00261d]">{selectedUser.name}</h3>
+                      <h3 className="font-bold text-sm text-[#00261d] truncate max-w-[160px] sm:max-w-none">{selectedUser.name}</h3>
                       <p className="text-[11px] text-[#006c48] font-semibold">{selectedUser.trustTier || 'Verified Member'}</p>
                     </div>
                   </div>
                   {selectedUser.location && (
-                    <span className="text-xs text-[#717975]">{selectedUser.location}</span>
+                    <span className="text-xs text-[#717975] hidden sm:inline">{selectedUser.location}</span>
                   )}
                 </div>
 
@@ -221,7 +228,7 @@ export default function CommunityMessagingPage({ onOpenAuthModal }) {
                                 : 'bg-white border border-[#dbe5dc] text-[#151e18] rounded-tl-none shadow-2xs'
                             }`}
                           >
-                            <p>{m.text}</p>
+                            <p className="break-words whitespace-pre-wrap">{m.text}</p>
                             <span className={`text-[10px] block text-right mt-1 ${isMe ? 'text-[#7dfabf]' : 'text-[#717975]'}`}>
                               {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
