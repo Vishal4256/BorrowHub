@@ -174,7 +174,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           
           {mode === 'register' && (
             <div>
