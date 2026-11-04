@@ -20,51 +20,27 @@ export const resolveImageUrl = (url) => {
 export const api = {
   // Auth
   async login(email, password) {
-    let res;
-    try {
-      res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-    } catch {
-      throw new Error('Unable to connect to the server. Please try again.');
-    }
-
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      if (res.status === 401) {
-        throw new Error(err.error || 'Incorrect email or password.');
-      }
-      if (res.status >= 500) {
-        throw new Error('Something went wrong. Please try again later.');
-      }
-      throw new Error(err.error || 'Incorrect email or password.');
+      throw new Error(err.error || 'Login failed');
     }
     return res.json();
   },
 
   async register(data) {
-    let res;
-    try {
-      res = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-    } catch {
-      throw new Error('Unable to connect to the server. Please try again.');
-    }
-
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      if (err.error && (err.error.includes('already exists') || err.error.includes('already registered'))) {
-        throw new Error('This email is already registered. Please sign in.');
-      }
-      if (res.status >= 500) {
-        throw new Error('Something went wrong. Please try again later.');
-      }
-      throw new Error(err.error || 'Registration failed. Please check your details.');
+      throw new Error(err.error || 'Registration failed');
     }
     return res.json();
   },

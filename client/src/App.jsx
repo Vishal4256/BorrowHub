@@ -83,7 +83,6 @@ export default function App() {
                   <EquipmentDetailsPage
                     onOpenAuthModal={handleOpenAuthModal}
                     onOpenListItemModal={handleOpenListItemModal}
-                    refreshTrigger={refreshTrigger}
                   />
                 }
               />
@@ -98,10 +97,6 @@ export default function App() {
                     onOpenListItemModal={() => handleOpenListItemModal(null)}
                   />
                 }
-              />
-              <Route
-                path="/ai-assistant"
-                element={<Navigate to="/ai-planner" replace />}
               />
               <Route
                 path="/borrower-dashboard"

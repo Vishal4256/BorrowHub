@@ -85,10 +85,6 @@ router.post('/', protect, async (req, res) => {
       return res.status(400).json({ error: 'Message text is required.' });
     }
 
-    if (text.trim().length > 5000) {
-      return res.status(400).json({ error: 'Message exceeds maximum allowed length of 5000 characters.' });
-    }
-
     if (bookingId && !mongoose.Types.ObjectId.isValid(bookingId)) {
       return res.status(400).json({ error: 'Invalid bookingId.' });
     }

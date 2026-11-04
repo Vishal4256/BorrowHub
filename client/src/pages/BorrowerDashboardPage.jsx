@@ -74,7 +74,7 @@ export default function BorrowerDashboardPage({ onOpenAuthModal }) {
           <div className="relative">
             <div className="w-16 h-16 rounded-full bg-[#123c32] text-white flex items-center justify-center font-bold text-xl border-2 border-[#006c48] overflow-hidden">
               {user.avatar ? (
-                <img src={resolveImageUrl(user.avatar)} alt={user.name} className="w-full h-full object-cover" />
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
               ) : (
                 <span>{userInitial}</span>
               )}
@@ -149,8 +149,8 @@ export default function BorrowerDashboardPage({ onOpenAuthModal }) {
       <div className="bg-white rounded-3xl border border-[#dbe5dc] p-6 shadow-xs space-y-6">
         
         {/* Tab Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#e1ebe1] overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-2 whitespace-nowrap">
+        <div className="flex items-center justify-between pb-4 border-b border-[#e1ebe1]">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('active')}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${

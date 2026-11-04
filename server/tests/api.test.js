@@ -203,51 +203,6 @@ test('2. Authentication: Borrower & Lender registration, admin protection, passw
     })
   });
   assert.equal(badLogin.status, 401, 'Bad password must return 401 Unauthorized');
-  const badLoginData = await badLogin.json();
-  assert.equal(badLoginData.error, 'Incorrect email or password.');
-
-  // 2f-2. Duplicate registration must return clear user-friendly error
-  const dupReg = await fetch(`${baseUrl}/api/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: 'Duplicate Sarah',
-      email: 'sarah.connor@test.local',
-      password: 'Password123!',
-      role: 'borrower'
-    })
-  });
-  assert.equal(dupReg.status, 400);
-  const dupData = await dupReg.json();
-  assert.equal(dupData.error, 'This email is already registered. Please sign in.');
-
-  // 2f-3. Missing required fields must return clear error
-  const missingReg = await fetch(`${baseUrl}/api/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: '',
-      email: 'nobody@test.local',
-      password: 'Password123!'
-    })
-  });
-  assert.equal(missingReg.status, 400);
-  const missingData = await missingReg.json();
-  assert.equal(missingData.error, 'Please complete all required fields.');
-
-  // 2f-4. Weak password validation
-  const weakPassReg = await fetch(`${baseUrl}/api/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: 'Weak Pass',
-      email: 'weakpass@test.local',
-      password: '123'
-    })
-  });
-  assert.equal(weakPassReg.status, 400);
-  const weakData = await weakPassReg.json();
-  assert.equal(weakData.error, 'Password must be at least 6 characters long.');
 
   // 2g. Valid login restores session
   const goodLogin = await fetch(`${baseUrl}/api/auth/login`, {

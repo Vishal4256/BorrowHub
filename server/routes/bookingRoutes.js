@@ -132,12 +132,6 @@ router.post('/', protect, async (req, res) => {
       return res.status(400).json({ error: 'Invalid start or end date.' });
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (start < today) {
-      return res.status(400).json({ error: 'Cannot book dates in the past.' });
-    }
-
     // CONCURRENCY & OVERLAP CHECK: Prevent double booking confirmed requests
     const overlapping = await Booking.findOne({
       equipment: equipment._id,
@@ -219,7 +213,7 @@ router.post('/', protect, async (req, res) => {
 router.patch('/:id/status', protect, async (req, res) => {
   try {
     const { status, reason, checklist, conditionScanProof } = req.body;
-    const validStatuses = ['approved', 'active', 'completed', 'cancelled', 'rejected'];
+    const validStatuses = ['approved', 'active', 'completed', 'cancelled'];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
@@ -265,18 +259,6 @@ router.patch('/:id/status', protect, async (req, res) => {
       if (!booking.lockerPin) {
         booking.lockerPin = String(Math.floor(1000 + Math.random() * 9000));
       }
-    }
-
-    if (status === 'rejected') {
-      if (!isLender && !isAdmin) {
-        return res.status(403).json({ error: 'Only the lender or admin can reject booking requests.' });
-      }
-      if (booking.status !== 'pending') {
-        return res.status(400).json({ error: `Cannot reject booking with status "${booking.status}". Only pending bookings can be rejected.` });
-      }
-      booking.cancellationReason = reason || 'Rejected by lender';
-      booking.cancelledBy = req.user._id;
-      booking.paymentStatus = 'simulated_refunded';
     }
 
     if (status === 'cancelled') {
