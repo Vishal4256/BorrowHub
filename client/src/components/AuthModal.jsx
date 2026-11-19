@@ -4,6 +4,13 @@ import { useAuth } from '../context/AuthContext';
 export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
   const { login, register } = useAuth();
   const [mode, setMode] = useState(initialMode); // 'login' | 'register'
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('borrower'); // 'borrower' | 'lender' (admin disallowed)
+  const [location, setLocation] = useState('');
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Reset form and mode whenever modal opens or initialMode changes
   useEffect(() => {
@@ -16,15 +23,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
       setLocation('');
     }
   }, [isOpen, initialMode]);
-
-  // Form states
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('borrower'); // 'borrower' | 'lender' (admin disallowed)
-  const [location, setLocation] = useState('');
-  const [error, setError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
