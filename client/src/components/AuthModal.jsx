@@ -7,6 +7,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [role, setRole] = useState('borrower'); // 'borrower' | 'lender' (admin disallowed)
   const [location, setLocation] = useState('');
   const [error, setError] = useState(null);
@@ -20,6 +23,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
       setName('');
       setEmail('');
       setPassword('');
+      setConfirmPassword('');
+      setShowPassword(false);
+      setShowConfirmPassword(false);
       setLocation('');
     }
   }, [isOpen, initialMode]);
@@ -29,6 +35,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (mode === 'register') {
+      if (password !== confirmPassword) {
+        setError('Passwords do not match. Please re-enter your password.');
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     try {
@@ -88,6 +102,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
             onClick={() => {
               setMode('login');
               setError(null);
+              setConfirmPassword('');
+              setShowPassword(false);
+              setShowConfirmPassword(false);
             }}
             className={`py-2 rounded-lg transition-all ${
               mode === 'login' ? 'bg-white text-[#00261d] shadow-2xs font-bold' : 'text-[#414845] hover:text-[#151e18]'
@@ -100,6 +117,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
             onClick={() => {
               setMode('register');
               setError(null);
+              setConfirmPassword('');
+              setShowPassword(false);
+              setShowConfirmPassword(false);
             }}
             className={`py-2 rounded-lg transition-all ${
               mode === 'register' ? 'bg-white text-[#00261d] shadow-2xs font-bold' : 'text-[#414845] hover:text-[#151e18]'
@@ -148,16 +168,57 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
 
           <div>
             <label className="block text-xs font-semibold text-[#151e18] mb-1">Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#c0c8c4] focus:outline-none focus:border-[#006c48] text-xs text-[#151e18]"
-            />
+            <div className="relative flex items-center">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-[#c0c8c4] focus:outline-none focus:border-[#006c48] text-xs text-[#151e18]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 text-[#717975] hover:text-[#00261d] transition-colors focus:outline-none flex items-center justify-center"
+                title={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
+            </div>
           </div>
+
+          {mode === 'register' && (
+            <div>
+              <label className="block text-xs font-semibold text-[#151e18] mb-1">Confirm Password</label>
+              <div className="relative flex items-center">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-[#c0c8c4] focus:outline-none focus:border-[#006c48] text-xs text-[#151e18]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 text-[#717975] hover:text-[#00261d] transition-colors focus:outline-none flex items-center justify-center"
+                  title={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  tabIndex={-1}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showConfirmPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {mode === 'register' && (
             <>
@@ -229,6 +290,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
                 onClick={() => {
                   setMode('register');
                   setError(null);
+                  setConfirmPassword('');
+                  setShowPassword(false);
+                  setShowConfirmPassword(false);
                 }}
                 className="text-[#006c48] font-bold hover:underline"
               >
@@ -243,6 +307,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
                 onClick={() => {
                   setMode('login');
                   setError(null);
+                  setConfirmPassword('');
+                  setShowPassword(false);
+                  setShowConfirmPassword(false);
                 }}
                 className="text-[#006c48] font-bold hover:underline"
               >
