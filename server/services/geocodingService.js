@@ -121,7 +121,7 @@ function getProviderConfig() {
   const apiKey = process.env.GEOCODING_API_KEY ? process.env.GEOCODING_API_KEY.trim() : '';
   const userAgent =
     process.env.GEOCODER_USER_AGENT ||
-    'BorrowHub/1.0 (https://borrowhub.vercel.app; contact@borrowhub.local)';
+    'BorrowHub/1.0 (https://borrowhub512.vercel.app; vishal42564256@gmail.com)';
 
   const baseUrl = process.env.GEOCODING_BASE_URL
     ? process.env.GEOCODING_BASE_URL.replace(/\/$/, '')
