@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { locationSubSchema } from './LocationSchema.js';
 
 const equipmentSchema = new mongoose.Schema(
   {
@@ -11,6 +12,7 @@ const equipmentSchema = new mongoose.Schema(
     reviewsCount: { type: Number, default: 0 },
     distance: { type: String, default: '' },
     location: { type: String, required: true, trim: true },
+    locationDetails: { type: locationSubSchema, default: undefined },
     condition: { type: String, default: 'Like New' },
     instantBook: { type: Boolean, default: true },
     isAvailable: { type: Boolean, default: true },
@@ -43,6 +45,7 @@ equipmentSchema.index({ title: 'text', description: 'text', category: 'text', ta
 equipmentSchema.index({ category: 1, isAvailable: 1 });
 equipmentSchema.index({ lender: 1, createdAt: -1 });
 equipmentSchema.index({ location: 1 });
+equipmentSchema.index({ 'locationDetails.coordinates': '2dsphere' }, { sparse: true });
 equipmentSchema.index({ pricePerDay: 1 });
 equipmentSchema.index({ createdAt: -1 });
 

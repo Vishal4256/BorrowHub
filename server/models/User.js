@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { locationSubSchema } from './LocationSchema.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -13,6 +14,7 @@ const userSchema = new mongoose.Schema(
     trustTier: { type: String, default: 'Community Member' },
     bio: { type: String, default: 'BorrowHub community member.' },
     location: { type: String, default: '' },
+    preferredLocation: { type: locationSubSchema, default: undefined },
     responseTime: { type: String, default: '< 30 mins' }
   },
   { timestamps: true }
@@ -30,5 +32,6 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ 'preferredLocation.coordinates': '2dsphere' }, { sparse: true });
 
 export default mongoose.model('User', userSchema);

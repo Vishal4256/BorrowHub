@@ -54,6 +54,14 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserLocation = async (locationPayload) => {
+    const data = await api.updateUserLocation(locationPayload);
+    if (data?.user) {
+      setUser(data.user);
+    }
+    return data?.user;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -63,7 +71,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
-        logout
+        logout,
+        updateUserLocation
       }}
     >
       {children}

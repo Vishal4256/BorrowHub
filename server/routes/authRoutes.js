@@ -3,15 +3,29 @@ import User from '../models/User.js';
 import { generateToken, protect } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import { isValidImageUrl } from '../utils/urlValidator.js';
+import { normalizeLocationInput } from '../utils/locationValidator.js';
 
 const router = express.Router();
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const sanitizeUser = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  avatar: user.avatar,
+  trustTier: user.trustTier,
+  rating: user.rating,
+  location: user.location,
+  preferredLocation: user.preferredLocation,
+  bio: user.bio
+});
+
 // POST /api/auth/register - Rate-limited, validated user registration
 router.post('/register', authLimiter, async (req, res) => {
   try {
-    const { name, email, password, role, location, bio, avatar } = req.body;
+    const { name, email, password, role, location, preferredLocation, bio, avatar } = req.body;
 
     if (!name || typeof name !== 'string' || !name.trim()) {
       return res.status(400).json({ error: 'A valid full name is required.' });
@@ -50,13 +64,29 @@ router.post('/register', authLimiter, async (req, res) => {
       }
     }
 
+    let normalizedPreferredLocation;
+    let resolvedLocationStr = typeof location === 'string' ? location.trim() : '';
+
+    const rawLocObj = preferredLocation ?? (location && typeof location === 'object' ? location : undefined);
+    if (rawLocObj !== undefined) {
+      const normalized = normalizeLocationInput(rawLocObj, { requireCoordinates: true });
+      if (!normalized.valid) {
+        return res.status(400).json({ error: normalized.error });
+      }
+      normalizedPreferredLocation = normalized.value;
+      if (!resolvedLocationStr) {
+        resolvedLocationStr = normalized.displayLabel || normalized.value.address;
+      }
+    }
+
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
       role: assignedRole,
       avatar: avatar ? avatar.trim() : '',
-      location: location ? location.trim() : '',
+      location: resolvedLocationStr,
+      ...(normalizedPreferredLocation ? { preferredLocation: normalizedPreferredLocation } : {}),
       bio: bio ? bio.trim() : 'BorrowHub community member.'
     });
 
@@ -64,17 +94,7 @@ router.post('/register', authLimiter, async (req, res) => {
 
     res.status(201).json({
       success: true,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-        trustTier: user.trustTier,
-        rating: user.rating,
-        location: user.location,
-        bio: user.bio
-      },
+      user: sanitizeUser(user),
       token
     });
   } catch (err) {
@@ -105,17 +125,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
     res.json({
       success: true,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-        trustTier: user.trustTier,
-        rating: user.rating,
-        location: user.location,
-        bio: user.bio
-      },
+      user: sanitizeUser(user),
       token
     });
   } catch (err) {
@@ -131,11 +141,52 @@ router.get('/me', protect, async (req, res) => {
   });
 });
 
+// PUT / PATCH /api/auth/location - Update authenticated user's preferred location
+const handleUpdateUserLocation = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User account not found.' });
+    }
+
+    if (req.body?.clear === true || req.body?.preferredLocation === null) {
+      user.preferredLocation = undefined;
+      user.location = '';
+      await user.save();
+      return res.json({
+        success: true,
+        user: sanitizeUser(user)
+      });
+    }
+
+    const rawLoc = req.body?.preferredLocation ?? req.body?.location ?? req.body;
+    const normalized = normalizeLocationInput(rawLoc, { requireCoordinates: true });
+    if (!normalized.valid) {
+      return res.status(400).json({ error: normalized.error });
+    }
+
+    user.preferredLocation = normalized.value;
+    user.location = normalized.displayLabel || normalized.value.address;
+    await user.save();
+
+    res.json({
+      success: true,
+      user: sanitizeUser(user)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update preferred location', details: err.message });
+  }
+};
+
+router.put('/location', protect, handleUpdateUserLocation);
+router.patch('/location', protect, handleUpdateUserLocation);
+
 // GET /api/auth/users - Registered peers directory for authenticated messaging
+// Privacy: Never expose password hashes or precise user coordinates to peers
 router.get('/users', protect, async (req, res) => {
   try {
     const users = await User.find({ _id: { $ne: req.user._id } })
-      .select('-password')
+      .select('-password -preferredLocation')
       .sort({ createdAt: -1 });
     res.json(users);
   } catch (err) {

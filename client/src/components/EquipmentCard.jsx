@@ -23,6 +23,10 @@ export default function EquipmentCard({ item }) {
   );
 
   const lenderInitial = lenderName.charAt(0).toUpperCase();
+  const distanceLabel =
+    typeof item.distanceKm === 'number' && Number.isFinite(item.distanceKm)
+      ? `${item.distanceKm.toFixed(1)} km away`
+      : item.distance || '';
 
   return (
     <div className="bg-white rounded-2xl border border-[#dbe5dc] hover:border-[#006c48]/50 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between group">
@@ -38,12 +42,12 @@ export default function EquipmentCard({ item }) {
         </Link>
 
         {/* Location or Distance Badge */}
-        {(item.distance || item.location) && (
+        {(distanceLabel || item.location) && (
           <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-[#006c48] flex items-center gap-1 shadow-xs max-w-[70%] truncate">
             <span className="material-symbols-outlined text-xs flex-shrink-0">
-              {item.distance ? 'near_me' : 'location_on'}
+              {distanceLabel ? 'near_me' : 'location_on'}
             </span>
-            <span className="truncate">{item.distance || item.location}</span>
+            <span className="truncate">{distanceLabel || item.location}</span>
           </span>
         )}
 
@@ -98,6 +102,13 @@ export default function EquipmentCard({ item }) {
               {item.title}
             </h3>
           </Link>
+
+          {distanceLabel && item.location && (
+            <p className="text-[11px] text-[#717975] mt-1 flex items-center gap-1 truncate">
+              <span className="material-symbols-outlined text-[13px] text-[#006c48] flex-shrink-0">location_on</span>
+              <span className="truncate">{item.location}</span>
+            </p>
+          )}
 
           {/* Lender Info */}
           <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f2fcf2]">

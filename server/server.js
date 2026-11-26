@@ -13,6 +13,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import locationRoutes from './routes/locationRoutes.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
@@ -126,6 +127,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/location', locationRoutes);
 
 // 404 Route Handler
 app.use((req, res) => {

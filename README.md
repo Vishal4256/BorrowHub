@@ -153,6 +153,8 @@ npm run build:client
    - `CLIENT_URL`: `https://<your-vercel-domain>.vercel.app`
    - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
    - `GEMINI_API_KEY` (with `GEMINI_MODEL=gemini-2.5-flash`)
+   - `GEOCODING_PROVIDER=nominatim` (free OpenStreetMap Nominatim by default; optional `locationiq` or `geoapify` with `GEOCODING_API_KEY`)
+   - `GEOCODER_USER_AGENT=BorrowHub/1.0 (https://your-domain.vercel.app; contact@example.com)`
 
 ### 3. Frontend — Vercel
 1. Import your repository into [Vercel](https://vercel.com/).

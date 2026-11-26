@@ -3,7 +3,9 @@ process.env.ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'test-admin-secre
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Writable } from 'node:stream';
 import mongoose from 'mongoose';
+import { v2 as cloudinary } from 'cloudinary';
 import app from '../server.js';
 import User from '../models/User.js';
 import Equipment from '../models/Equipment.js';
@@ -695,18 +697,44 @@ test('10. Image Upload Security & Input Validation Defense', async () => {
   const badUploadJson = await badUploadRes.json();
   assert.ok(badUploadJson.error.includes('Only .jpg, .jpeg, .png, .webp, and .gif files are allowed'));
 
-  // 10c. Successful authenticated image upload
+  // 10c. Successful authenticated image upload (mock Cloudinary upload_stream so test is deterministic offline/online)
   const goodFormData = new FormData();
   // Minimal valid 1x1 GIF binary
   const gifBuffer = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
   const imageBlob = new Blob([gifBuffer], { type: 'image/gif' });
   goodFormData.append('image', imageBlob, 'test-gear-photo.gif');
 
-  const goodUploadRes = await fetch(`${baseUrl}/api/upload`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${lenderUser.token}` },
-    body: goodFormData
-  });
+  const originalUploadStream = cloudinary.uploader.upload_stream;
+  cloudinary.uploader.upload_stream = (options, cb) => {
+    assert.equal(options.folder, 'borrowhub/equipment');
+    assert.equal(options.resource_type, 'image');
+    return new Writable({
+      write(chunk, encoding, callback) {
+        callback();
+      },
+      final(callback) {
+        callback();
+        cb(null, {
+          secure_url: 'https://res.cloudinary.com/test-cloud/image/upload/v1/borrowhub/equipment/test-gear-photo.gif',
+          public_id: 'borrowhub/equipment/test-gear-photo',
+          bytes: gifBuffer.length,
+          format: 'gif'
+        });
+      }
+    });
+  };
+
+  let goodUploadRes;
+  try {
+    goodUploadRes = await fetch(`${baseUrl}/api/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${lenderUser.token}` },
+      body: goodFormData
+    });
+  } finally {
+    cloudinary.uploader.upload_stream = originalUploadStream;
+  }
+
   assert.equal(goodUploadRes.status, 201, 'Valid image upload succeeds');
   const uploadData = await goodUploadRes.json();
   assert.ok(

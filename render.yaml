@@ -26,3 +26,9 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: GEOCODING_PROVIDER
+        value: nominatim
+      - key: GEOCODER_USER_AGENT
+        value: BorrowHub/1.0 (https://borrowhub512.vercel.app; contact@borrowhub.local)
+      - key: GEOCODING_API_KEY
+        sync: false

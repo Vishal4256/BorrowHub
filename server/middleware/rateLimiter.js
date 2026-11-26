@@ -22,3 +22,14 @@ export const apiLimiter = rateLimit({
   }
 });
 
+// Rate limiter for backend geocoding endpoints to respect external provider quotas
+export const geocodeLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: process.env.NODE_ENV === 'test' ? 1000 : 30, // 30 requests per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Too many location lookup requests. Please wait a moment and try again.'
+  }
+});
+

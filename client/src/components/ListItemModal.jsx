@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import LocationSelector from './LocationSelector';
+
+function buildDisplayLocation(loc) {
+  if (!loc) return '';
+  const parts = [loc.city, loc.state].filter(Boolean);
+  if (parts.length > 0) return parts.join(', ');
+  return loc.label || loc.address || '';
+}
+
+function hasValidCoordinates(loc) {
+  const coords = loc?.coordinates?.coordinates;
+  if (!Array.isArray(coords) || coords.length !== 2) return false;
+  const [lng, lat] = coords;
+  return (
+    typeof lng === 'number' &&
+    typeof lat === 'number' &&
+    Number.isFinite(lng) &&
+    Number.isFinite(lat) &&
+    lng >= -180 &&
+    lng <= 180 &&
+    lat >= -90 &&
+    lat <= 90
+  );
+}
 
 export default function ListItemModal({ isOpen, onClose, onAddItem, onOpenAuthModal, itemToEdit = null }) {
   const { user } = useAuth();
@@ -9,7 +33,10 @@ export default function ListItemModal({ isOpen, onClose, onAddItem, onOpenAuthMo
   const [category, setCategory] = useState(() => itemToEdit?.category || 'Power Tools');
   const [pricePerDay, setPricePerDay] = useState(() => itemToEdit?.pricePerDay ?? 25);
   const [retailValue, setRetailValue] = useState(() => itemToEdit?.retailValue ?? 350);
-  const [location, setLocation] = useState(() => itemToEdit?.location || user?.location || '');
+  const [location, setLocation] = useState(() => itemToEdit?.location || '');
+  const [locationDetails, setLocationDetails] = useState(() =>
+    hasValidCoordinates(itemToEdit?.locationDetails) ? itemToEdit.locationDetails : null
+  );
   const [imageUrl, setImageUrl] = useState(() => itemToEdit?.images?.[0] || '');
   const [description, setDescription] = useState(() => itemToEdit?.description || '');
   const [condition, setCondition] = useState(() => itemToEdit?.condition || 'Like New');
@@ -61,10 +88,17 @@ export default function ListItemModal({ isOpen, onClose, onAddItem, onOpenAuthMo
       return;
     }
 
-    if (!title.trim() || !location.trim()) {
-      setError('Title and location are required.');
+    if (!title.trim()) {
+      setError('Equipment title is required.');
       return;
     }
+
+    if (!hasValidCoordinates(locationDetails)) {
+      setError('Please detect your current location or select a verified location from the suggestions list.');
+      return;
+    }
+
+    const displayLoc = buildDisplayLocation(locationDetails) || location.trim();
 
     try {
       setSubmitting(true);
@@ -73,7 +107,21 @@ export default function ListItemModal({ isOpen, onClose, onAddItem, onOpenAuthMo
         category,
         pricePerDay: Number(pricePerDay),
         retailValue: Number(retailValue || 0),
-        location: location.trim(),
+        location: displayLoc,
+        locationDetails: {
+          address: locationDetails.address || displayLoc,
+          city: locationDetails.city || '',
+          state: locationDetails.state || '',
+          country: locationDetails.country || '',
+          postalCode: locationDetails.postalCode || '',
+          coordinates: {
+            type: 'Point',
+            coordinates: [
+              Number(locationDetails.coordinates.coordinates[0]),
+              Number(locationDetails.coordinates.coordinates[1])
+            ]
+          }
+        },
         condition,
         instantBook,
         description: description.trim(),
@@ -195,17 +243,30 @@ export default function ListItemModal({ isOpen, onClose, onAddItem, onOpenAuthMo
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#151e18] mb-1">Item Location / Neighborhood</label>
-            <input 
-              type="text" 
-              required
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Downtown Arts District, Austin, TX"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#c0c8c4] focus:outline-none focus:border-[#006c48] text-xs text-[#151e18]"
+          <div className="p-3.5 rounded-2xl border border-[#dbe5dc] bg-[#FAFBF8] space-y-2">
+            <LocationSelector
+              value={locationDetails}
+              savedLocation={user?.preferredLocation}
+              label="Item Pickup Location (Verified GPS or Search)"
+              placeholder="Search city, locality, area, or postal code..."
+              onSelect={(loc) => {
+                setLocationDetails(loc);
+                setLocation(buildDisplayLocation(loc));
+                setError(null);
+              }}
+              onClear={() => {
+                setLocationDetails(null);
+                setLocation('');
+              }}
             />
-            <span className="text-[10px] text-[#717975] mt-0.5 block">Where the borrower will pick up or meet for this item</span>
+            {!locationDetails && itemToEdit?.location && (
+              <p className="text-[11px] text-[#5c4200] bg-[#ffdea2]/40 px-2.5 py-1.5 rounded-lg">
+                Current unverified location: <strong>{itemToEdit.location}</strong>. Please verify with GPS or search suggestions above.
+              </p>
+            )}
+            <span className="text-[10px] text-[#717975] block">
+              Used for nearby distance search. Exact coordinates are validated as GeoJSON [longitude, latitude].
+            </span>
           </div>
 
           <div>

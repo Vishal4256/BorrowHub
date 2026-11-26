@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api, resolveImageUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import PreferredLocationModal from '../components/PreferredLocationModal';
 
 export default function BorrowerDashboardPage({ onOpenAuthModal }) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('active'); // 'active' | 'pending' | 'completed'
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchBorrowerBookings = async () => {
@@ -91,8 +93,15 @@ export default function BorrowerDashboardPage({ onOpenAuthModal }) {
                 {user.trustTier || 'Verified Borrower'}
               </span>
             </div>
-            <p className="text-xs text-[#717975] mt-0.5">
-              {user.location ? `${user.location} • ` : ''}Member Rating: {user.rating > 0 ? `${user.rating} ★` : 'New'}
+            <p className="text-xs text-[#717975] mt-0.5 flex flex-wrap items-center gap-1.5">
+              <span>{user.location ? `${user.location} • ` : 'No preferred location set • '}Member Rating: {user.rating > 0 ? `${user.rating} ★` : 'New'}</span>
+              <button
+                type="button"
+                onClick={() => setLocationModalOpen(true)}
+                className="text-[#006c48] font-bold hover:underline"
+              >
+                {user.location ? 'Edit Location' : 'Set Location'}
+              </button>
             </p>
           </div>
         </div>
@@ -246,6 +255,12 @@ export default function BorrowerDashboardPage({ onOpenAuthModal }) {
         )}
 
       </div>
+
+      <PreferredLocationModal
+        key={locationModalOpen ? 'open' : 'closed'}
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+      />
 
     </div>
   );

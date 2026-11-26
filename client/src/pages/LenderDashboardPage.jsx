@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api, resolveImageUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import PreferredLocationModal from '../components/PreferredLocationModal';
 
 export default function LenderDashboardPage({ onOpenListItemModal, onOpenAuthModal, refreshTrigger }) {
   const { user } = useAuth();
   const [inventory, setInventory] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchLenderData = async () => {
@@ -100,9 +102,18 @@ export default function LenderDashboardPage({ onOpenListItemModal, onOpenAuthMod
               {user.role === 'lender' ? 'Host Console' : user.role === 'admin' ? 'Admin Hub' : 'Member Studio'}
             </span>
           </div>
-          <p className="text-xs text-[#717975] mt-1">
-            Logged in as <strong>{user.name}</strong> ({user.email})
-            {user.location && <span> • {user.location}</span>}
+          <p className="text-xs text-[#717975] mt-1 flex flex-wrap items-center gap-1.5">
+            <span>
+              Logged in as <strong>{user.name}</strong> ({user.email})
+              {user.location && <span> • {user.location}</span>}
+            </span>
+            <button
+              type="button"
+              onClick={() => setLocationModalOpen(true)}
+              className="text-[#006c48] font-bold hover:underline"
+            >
+              {user.location ? 'Edit Location' : 'Set Location'}
+            </button>
           </p>
         </div>
 
@@ -297,6 +308,12 @@ export default function LenderDashboardPage({ onOpenListItemModal, onOpenAuthMod
           </div>
         )}
       </div>
+
+      <PreferredLocationModal
+        key={locationModalOpen ? 'open' : 'closed'}
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+      />
 
     </div>
   );

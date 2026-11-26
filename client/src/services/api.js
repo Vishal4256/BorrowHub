@@ -61,6 +61,64 @@ export const api = {
     return res.json();
   },
 
+  async updateUserLocation(locationPayload) {
+    const res = await fetch(`${API_BASE}/auth/location`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(locationPayload)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to update preferred location');
+    }
+    return res.json();
+  },
+
+  // Location & Geocoding
+  async searchLocations(query, limit = 5) {
+    const params = new URLSearchParams({ q: query, limit: String(limit) });
+    const res = await fetch(`${API_BASE}/location/search?${params.toString()}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Location search failed');
+    }
+    return res.json();
+  },
+
+  async reverseGeocode(lat, lng) {
+    const params = new URLSearchParams({ lat: String(lat), lng: String(lng) });
+    const res = await fetch(`${API_BASE}/location/reverse?${params.toString()}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Reverse geocoding failed');
+    }
+    return res.json();
+  },
+
+  async getNearbyEquipment(params = {}) {
+    const query = new URLSearchParams();
+    if (params.lat !== undefined) query.append('lat', String(params.lat));
+    if (params.lng !== undefined) query.append('lng', String(params.lng));
+    if (params.radius !== undefined) query.append('radius', String(params.radius));
+    if (params.search) query.append('search', params.search);
+    if (params.category && params.category !== 'All' && params.category !== 'all') {
+      query.append('category', params.category);
+    }
+    if (params.maxPrice) query.append('maxPrice', String(params.maxPrice));
+    if (params.instantBook) query.append('instantBook', 'true');
+    if (params.condition && params.condition !== 'all') query.append('condition', params.condition);
+    if (params.sortBy) query.append('sortBy', params.sortBy);
+    if (params.page) query.append('page', String(params.page));
+    if (params.limit) query.append('limit', String(params.limit));
+
+    const res = await fetch(`${API_BASE}/equipment/nearby?${query.toString()}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch nearby equipment listings');
+    }
+    return res.json();
+  },
+
   // Equipment
   async getEquipment(params = {}) {
     const query = new URLSearchParams();
